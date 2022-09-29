@@ -7,18 +7,38 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 
 public class Storage extends SubsystemBase {
   /** Creates a new Storage. */
-  public WPI_TalonFX Storage = new WPI_TalonFX(2);
+  public WPI_TalonFX storageRight = new WPI_TalonFX(2);
+  public WPI_TalonFX storageLeft = new WPI_TalonFX(2);
   public Storage() {
-    storage.setInverted(true);
+    storageLeft.setInverted(false);
+    storageRight.setInverted(true);
   }
 
-  public void storageForward() {
-    storage.set(ControlMode.PercentOutput, 0.5);
+  public void bothForward(){
+    storageLeft.set(ControlMode.PercentOutput, Constants.STORAGE_SPEED);
+    storageRight.set(ControlMode.PercentOutput, Constants.STORAGE_SPEED);
   }
 
-  public void stop() {
-    storage.set(ControlMode.PercentOutput, 0.0);
+  public void bothBackward(){
+    storageLeft.set(ControlMode.PercentOutput, -1 * Constants.STORAGE_SPEED);
+    storageRight.set(ControlMode.PercentOutput, -1 * Constants.STORAGE_SPEED);
   }
+
+  public void rightForward(){
+    storageRight.set(ControlMode.PercentOutput, Constants.STORAGE_SPEED);
+    storageLeft.set(ControlMode.PercentOutput, -1 * Constants.STORAGE_SPEED);
+  }
+
+  public void leftForward(){
+    storageRight.set(ControlMode.PercentOutput, -1 * Constants.STORAGE_SPEED);
+    storageLeft.set(ControlMode.PercentOutput, Constants.STORAGE_SPEED);
+  }
+
+  public void stop(){
+    storageLeft.set(0.0);
+    storageRight.set(0.0);
+  }
+
 
   @Override
   public void periodic() {
