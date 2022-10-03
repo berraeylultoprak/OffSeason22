@@ -2,7 +2,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Feeder extends Subsystembase {
   /** Creates a new Feeder. */
 
-  public WPI_TalonFX feeder = new WPI_TalonFX(3);
+  public WPI_TalonFX feeder = new WPI_TalonSRX(3);
 
   public Feeder(boolean isInverted) {
     feeder.setInverted(isInverted);
