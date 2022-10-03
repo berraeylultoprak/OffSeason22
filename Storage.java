@@ -1,13 +1,13 @@
 package Storage;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
 public class Storage extends SubsystemBase {
   /** Creates a new Storage. */
-  public WPI_TalonFX storage = new WPI_TalonFX(2);
+  public WPI_TalonSRX storage = new WPI_TalonSRX(2);
   public Storage() {
     storage.setInverted(false);
   }
@@ -17,8 +17,7 @@ public class Storage extends SubsystemBase {
   }
 
   public void storageBackwards(){
-    storageLeft.set(ControlMode.PercentOutput, -1 * Constants.STORAGE_SPEED);
-    storageRight.set(ControlMode.PercentOutput, -1 * Constants.STORAGE_SPEED);
+    storage.set(ControlMode.PercentOutput, -1 * Constants.STORAGE_SPEED);
   }
 
   public void stop(){
