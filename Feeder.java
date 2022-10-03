@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Feeder extends Subsystembase {
   /** Creates a new Feeder. */
 
-  public WPI_TalonFX feeder = new WPI_TalonSRX(3);
+  public WPI_TalonSRX feeder = new WPI_TalonSRX(3);
 
   public Feeder(boolean isInverted) {
     feeder.setInverted(isInverted);
