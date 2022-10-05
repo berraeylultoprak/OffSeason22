@@ -5,7 +5,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
-public class Storage extends SubsystemBase {
+private class Storage extends SubsystemBase {
   /** Creates a new Storage. */
   public WPI_TalonSRX storage = new WPI_TalonSRX(2);
   public Storage() {
