@@ -10,7 +10,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.WPI_TalonSRX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Climb extends SubsystemBase {
+private class Climb extends SubsystemBase {
   /** Creates a new Climb. */
   public WPI_TalonSRX climb = new WPI_TalonSRX(0);
 
