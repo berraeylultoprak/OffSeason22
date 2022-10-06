@@ -1,80 +1,86 @@
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
+
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.sensors.CANCoder;
+
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpiutil.math.MathUtil;
 import frc.robot.Constants;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+public class Shooter extends SubsystemBase {
+  /** Creates a new Shooter. */
+  WPI_TalonFX shooterMasterMotor = new WPI_TalonFX(Constants.SHOOTER_MASTER_ID);
+  WPI_TalonFX shooterSlaveMotor = new WPI_TalonFX(Constants.SHOOTER_SLAVE_ID);
 
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.controller.PIDController;
-import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Units;
+  private double kP = 0.11533;
+  private double kI = 0.0;
+  private double kD = 0.0;
+
+  private double kS = 0.74791;
+  private double kV = 0.11447;
+  private double kA = 0.0063222;
+
+  SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(kS, kV, kA);
+
+  private double shooterCurrentRPM;
+  private double PIDOutput;
+  private double feedForwardOutput;
+  
+  public PIDController shooterPID = new PIDController(kP, kI, kD);  
+
+  double error;
+  double output;
+
+  public Shooter() {
+    shooterSlaveMotor.setInverted(false);
+    shooterMasterMotor.setInverted(true);
+    shooterSlaveMotor.follow(shooterMasterMotor);
+  }
+
+  public void setRPM(int RPM){
+    double shooterRawSensor = shooterMasterMotor.getSelectedSensorVelocity();
+    shooterCurrentRPM = (shooterRawSensor * 10.)/2048. * 60.;
+    //2048 signals per revolution
+
+    shooterPID.setTolerance(100);
+    PIDOutput = shooterPID.calculate(shooterCurrentRPM/60., RPM/60.);
+
+    feedForwardOutput = feedforward.calculate(RPM/60.);
+
+    output = (PIDOutput + feedForwardOutput) / RobotController.getBatteryVoltage();
+    shooterMasterMotor.set(ControlMode.PercentOutput,output);
+  }
+
+  public double getRPM(){
+    return shooterCurrentRPM;
+  }
+
+  public void shootBall(){
+    shooterMasterMotor.set(ControlMode.PercentOutput, 0.52);
+  }
+
+  public void stop(){
+    shooterMasterMotor.set(ControlMode.PercentOutput, 0);
+  }
 
 
-public class Shooter extends SubsystemBase{
-    public static WPI_TalonFX masterMotor;
-    public static WPI_TalonFX slaveMotor;
-    public Encoder shooterEncoder;
+  @Override
+  public void periodic() {
+    // This method will be called once per scheduler run
+    SmartDashboard.putNumber("Shooter RPM", shooterCurrentRPM);
+    // SmartDashboard.putNumber("Shooter FeedForward Output", feedForwardOutput );
+    // SmartDashboard.putNumber("Shooter PID Output", output);
+    // SmartDashboard.putNumber("Shooter Setpoint", shooterPID.getSetpoint());
 
-    private double kP = 0.0000261; //proportional
-    private double kI = 0; //integral
-    private double kD = 0.0; //derivative
-    public SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(1.49, 0.656, 0.00238);
-    private PIDController pid = new PIDController(kP,kI,kD);
     
-    private double ENCODER_EDGES_PER_REV = 4096 / 4.;
-    private double encoderConstant = (1 / ENCODER_EDGES_PER_REV);
-    
-
-
-    public Shooter(){
-        masterMotor = new WPI_TalonSRX(4);
-        slaveMotor = new WPI_TalonSRX(9);
-        shooterEncoder = new Encoder(0, 1, false);
-        shooterEncoder.setDistancePerPulse(encoderConstant);
-        
-        slaveMotor.setInverted(false);
-        masterMotor.setInverted(false);
-        //slaveMotor.follow(masterMotor);
-
-        //shooterEncoder.setDistancePerPulse(encoderConstant);
-        pid.setTolerance(100);
-    }
-    public void setShooter(double percentage) {
-      //masterMotor.set(percentage);
-      masterMotor.setVoltage(percentage*13);
-      slaveMotor.setVoltage(percentage*13);
-      //slaveMotor.set(percentage);
-    }
-
-    public double getRPM(){
-        return shooterEncoder.getRate() * 60.;
-    }
-
-    public void stop(){
-        setShooter(0);
-    }
-    public boolean isAtRPM(int RPM){
-        if(Math.abs(getRPM() - RPM) <= 100){
-            return true;
-        }
-        return false;
-    }
-
-    // Feedforward
-    public void setRPM(int rpm){
-        double ffOutput = feedforward.calculate(rpm);
-        double pidOutput = pid.calculate(getRPM(), rpm);
-        SmartDashboard.putNumber("Shooter FF  Output", ffOutput);
-        SmartDashboard.putNumber("Shooter PID Output", pidOutput);
-        setShooter(MathUtil.clamp(pidOutput, -1, 1));
-    }
-
-    public void runBackwards(){
-        setShooter(-0.2);
-    }
-        
-    
+  }
 }
